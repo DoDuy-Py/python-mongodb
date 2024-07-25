@@ -1,0 +1,24 @@
+----------- init db -----------
+from pymongo import MongoClient
+
+MONGO_DETAILS = "mongodb://localhost:27017" # host và port
+
+client = MongoClient(MONGO_DETAILS)
+database = client.my_database # my_database là tên csdl (nó sẽ tự tạo)
+
+user_collection = database.get_collection("users") # Dùng như session
+role_collection = database.get_collection("roles")
+
+
+----- UPDATE DB ---------
+$set: Cập nhật giá trị của một trường cụ thể trong tài liệu.
+$unset: Xóa một trường khỏi tài liệu.
+$inc: Tăng hoặc giảm giá trị của một trường số.
+$push: Thêm một phần tử vào mảng.
+$pull: Loại bỏ các phần tử khỏi mảng mà phù hợp với một điều kiện cụ thể.
+$addToSet: Thêm một phần tử vào mảng nếu phần tử đó chưa tồn tại trong mảng.
+$pop: Xóa phần tử đầu tiên hoặc cuối cùng của mảng.
+$rename: Đổi tên một trường.
+$currentDate: Đặt giá trị của một trường thành ngày giờ hiện tại. '$currentDate': {'updated_at': { '$type': 'datetime' }}
+$max: Cập nhật giá trị của trường nếu giá trị mới lớn hơn giá trị hiện tại.
+$min: Cập nhật giá trị của trường nếu giá trị mới nhỏ hơn giá trị hiện tại.
