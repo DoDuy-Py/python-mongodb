@@ -8,6 +8,7 @@ def init_db():
     try:
         users = list(user_collection.find())
         if not users:
+            print("============= INIT USER ADMIN =============")
             user_data = {
                 'account': 'admin',
                 'password': hash_password('123'),
@@ -19,6 +20,7 @@ def init_db():
 
         roles = list(role_collection.find())
         if not roles:
+            print("============= INIT ROLE ADMIN, STAFF =============")
             roles_data = [
                 {
                     "name": "admin",

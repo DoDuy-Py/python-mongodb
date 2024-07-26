@@ -7,10 +7,12 @@ from bson import ObjectId
 from auth.auth_token import validate_token
 from core.settings import role_collection
 from core.base import json_serialize, Base, Response
+from views_func.decorator import permission_required
 from views_func.function import format_response_data, thread_update_roles_users
 
 class RoleViewSet(Base):
 
+    @permission_required(permissions=['admin'])
     def create(self, request):
         content_length = int(request.headers['Content-Length'])
         post_data = request.rfile.read(content_length).decode('utf-8')
@@ -33,24 +35,25 @@ class RoleViewSet(Base):
             response = Response.bad_request({"error": str(e)})
         self.send_response(request, response)
     
+    @permission_required(permissions=['admin'])
     def delete(self, request, pk=None):
         try:
-            auth = request.headers.get("Authorization")
-            if not auth:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # auth = request.headers.get("Authorization")
+            # if not auth:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            user = validate_token(auth)
-            if not user:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # user = validate_token(auth)
+            # if not user:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            if isinstance(user, str):
-                user = json.loads(user)
+            # if isinstance(user, str):
+            #     user = json.loads(user)
 
-            if "admin" not in user.get("roles", []):
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # if "admin" not in user.get("roles", []):
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
             role_instance = role_collection.find_one_and_delete({"_id": ObjectId(pk)})
             if not role_instance:

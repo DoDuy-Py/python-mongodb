@@ -1,3 +1,4 @@
+import uuid
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from core import settings
@@ -27,11 +28,18 @@ def create_access_token(user: any) -> str:
         "exp": expire, "user": json.dumps(user, default=json_serialize)
     }
     token = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.SECURITY_ALGORITHM)
+    session_id = uuid.uuid4().hex
+
+    data_token = f"{token}|{str(session_id)}" # Trả về token có dạng token|session_id
+    # Lưu session_id vào bảng Session ### Logout hay change password sẽ xóa hết session của user đi
+
     return token
 
 def validate_token(auth: str) -> Optional[Dict[str, Any]]:
     try:
         token = auth.split(" ")[1]  # Lấy token từ header 'Bearer <token>'
+        # token, session_id = token.split("|") # Lấy token và session_id 
+        # Check session 
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.SECURITY_ALGORITHM])
             user = payload.get("user")

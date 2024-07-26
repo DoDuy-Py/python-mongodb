@@ -17,7 +17,7 @@ routes = {
         "/weather/{pk}": WeatherViewSet().detail,
 
         "/waters": WaterViewSet().get,
-        "/water/{pk}": WaterViewSet.detail
+        "/water/{pk}": WaterViewSet().detail
     },
     "POST": {
         "/sign-in": Auth().signin,

@@ -5,29 +5,31 @@ from http.server import BaseHTTPRequestHandler
 from auth.auth_token import validate_token
 from core.settings import user_collection
 from core.base import json_serialize, Base, Response
+from views_func.decorator import permission_required
 from views_func.function import format_response_data
 
 class UserViewSet(Base):
 
+    @permission_required(permissions=['admin'])
     def create(self, request):
         content_length = int(request.headers['Content-Length'])
         post_data = request.rfile.read(content_length).decode('utf-8')
         try:
-            auth = request.headers.get("Authorization")
-            if not auth:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # auth = request.headers.get("Authorization")
+            # if not auth:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            user = validate_token(auth)
-            if not user:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # user = validate_token(auth)
+            # if not user:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            if isinstance(user, str):
-                user = json.loads(user)
-            if "admin" not in user.get('roles', []):
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # if isinstance(user, str):
+            #     user = json.loads(user)
+            # if "admin" not in user.get('roles', []):
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
             user_data = json.loads(post_data)
             user_data["created_at"] = datetime.utcnow()
@@ -95,24 +97,25 @@ class UserViewSet(Base):
             response = Response.bad_request({"error": str(e)})
         self.send_response(request, response)
 
+    @permission_required(permissions=['admin'])
     def update(self, request, pk=None):
         try:
-            auth = request.headers.get("Authorization")
-            if not auth:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # auth = request.headers.get("Authorization")
+            # if not auth:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            user = validate_token(auth)
-            if not user:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # user = validate_token(auth)
+            # if not user:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            if isinstance(user, str):
-                user = json.loads(user)
+            # if isinstance(user, str):
+            #     user = json.loads(user)
 
-            if "admin" not in user.get("roles", []) and str(pk) != user.get("_id"):
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # if "admin" not in user.get("roles", []) and str(pk) != user.get("_id"):
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
             # user = user_collection.find_one({"_id": ObjectId(pk)})
             # if not user:
@@ -137,24 +140,25 @@ class UserViewSet(Base):
             response = Response.bad_request({"error": str(e)})
         self.send_response(request, response)
     
+    @permission_required(permissions=['admin'])
     def delete(self, request, pk=None):
         try:
-            auth = request.headers.get("Authorization")
-            if not auth:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # auth = request.headers.get("Authorization")
+            # if not auth:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            user = validate_token(auth)
-            if not user:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # user = validate_token(auth)
+            # if not user:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            if isinstance(user, str):
-                user = json.loads(user)
+            # if isinstance(user, str):
+            #     user = json.loads(user)
 
-            if "admin" not in user.get("roles", []) and str(pk) != user.get("_id"):
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # if "admin" not in user.get("roles", []) and str(pk) != user.get("_id"):
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
             user = user_collection.find_one({"_id": ObjectId(pk)})
             if not user:
