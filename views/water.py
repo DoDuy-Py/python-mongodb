@@ -67,18 +67,18 @@ class WaterViewSet(Base):
             response = Response.bad_request(format_response_data(400, "Có lỗi xảy ra", None))
             return self.send_response(request, response)
     
-    @permission_required(permissions=['staff'])
+    @permission_required(permissions=['staff', 'admin'])
     def get(self, request):
         try:
-            auth = request.headers.get("Authorization")
-            if not auth:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # auth = request.headers.get("Authorization")
+            # if not auth:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
-            user = validate_token(auth)
-            if not user:
-                response = Response.unauthorized({'message': 'Authorization token not provided'})
-                return self.send_response(request, response)
+            # user = validate_token(auth)
+            # if not user:
+            #     response = Response.unauthorized({'message': 'Authorization token not provided'})
+            #     return self.send_response(request, response)
             
             # Lấy các query parameters từ URL
             query_params = parse_qs(urlparse(request.path).query)
@@ -124,7 +124,7 @@ class WaterViewSet(Base):
             response = Response.bad_request(format_response_data(400, "Có lỗi xảy ra", None))
             return self.send_response(request, response)
     
-    @permission_required(permissions=['staff'])
+    @permission_required(permissions=['staff', 'admin'])
     def detail(self, request, pk=None):
         try:
             # auth = request.headers.get("Authorization")
