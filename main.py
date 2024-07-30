@@ -1,6 +1,6 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler, SimpleHTTPRequestHandler
 import threading
-from routers import route_request
+from routers import route_request, rate_limit
 import json
 import os
 
@@ -9,11 +9,34 @@ from views_func.shared_func import init_schedule
 
 class RequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
+        ### Kiểm tra user_id
+        user_id = self.headers.get('User-ID')
+        if not user_id:
+            self.send_response(400, '{"error": "User-ID header is required"}')
+            return
+        
         if self.path.startswith('/static') or self.path.startswith('/media'):
             self.path = self.path.lstrip('/')
             if os.path.exists(self.path) and os.path.isfile(self.path):
                 return super().do_GET()
         else:
+            # Kiểm tra rate limit
+            is_allowed, remaining = rate_limit(user_id, "GET", self.path)
+
+            if not is_allowed:
+                response = {
+                    "statusCode": 429,
+                    "body": {"error": f"Rate limit exceeded, remaining {remaining}"},
+                    "headers": {"Content-Type": "application/json"}
+                }
+                self.send_response(response["statusCode"])
+                for key, value in response["headers"].items():
+                    self.send_header(key, value)
+                self.end_headers()
+                self.wfile.write(json.dumps(response["body"]).encode('utf-8'))
+                # self.send_response(429, f'{{"error": "Rate limit exceeded", "remaining": {remaining}}}')
+                return
+            
             handler_function, param = route_request(self.path, "GET")
             if handler_function:
                 if param:
@@ -91,7 +114,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
 def run(server_class=HTTPServer, port=8000):
     try:
-        server_address = ('127.0.0.1', port)
+        server_address = ('0.0.0.0', port)
         httpd = server_class(server_address, RequestHandler)
         print(f'========= Starting httpd server on port {port} ==========')
         threading.Thread(target=init_schedule).start()

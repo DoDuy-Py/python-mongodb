@@ -22,3 +22,8 @@ $rename: Đổi tên một trường.
 $currentDate: Đặt giá trị của một trường thành ngày giờ hiện tại. '$currentDate': {'updated_at': { '$type': 'datetime' }}
 $max: Cập nhật giá trị của trường nếu giá trị mới lớn hơn giá trị hiện tại.
 $min: Cập nhật giá trị của trường nếu giá trị mới nhỏ hơn giá trị hiện tại.
+$group: Nhóm theo field và thêm field mới: ví dụ dưới là nhóm tất cả thành 1 nhóm ( "_id": $name ) = nhóm theo name
+{"$group": {
+    "_id": None,
+    "averageTemperature": {"$avg": "$temperature_as_float"}
+}}

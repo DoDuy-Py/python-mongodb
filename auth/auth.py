@@ -35,7 +35,17 @@ class Auth(Base):
                 return self.send_response(request, response)
             
             access_token = create_access_token(user)
-            response = Response.ok(access_token)
+            response_data = {
+                'page': 1,
+                'per_page': 10,
+                'total_pages': 1,
+                'total_count': 1,
+                'content': {
+                    "access_token": access_token,
+                    "user_id": user['_id']
+                }
+            }
+            response = Response.ok(format_response_data(200, "Login thành công", response_data))
 
             # if user:
             #     response = Response.ok({"message": "Đăng nhập thành công"})

@@ -12,6 +12,7 @@ from views_func.decorator import permission_required
 from views_func.function import format_response_data
 
 from urllib.parse import parse_qs, urlparse
+from dateutil import parser
 import cgi
 
 import urllib.request
@@ -109,6 +110,156 @@ class WeatherViewSet(Base):
                 'total_pages': total_pages,
                 'total_count': total_count,
                 'content': weathers
+            }
+
+            response = Response.ok(format_response_data(200, "Lấy danh sách user thành công", response_data))
+            return self.send_response(request, response)
+        except Exception as e:
+            print(e)
+            response = Response.bad_request(format_response_data(400, "Có lỗi xảy ra", None))
+            return self.send_response(request, response)
+    
+    @permission_required(permissions=['staff', 'admin'])
+    def get_temperature_avg_in_citys(self, request):
+        try:
+            # Lấy các query parameters từ URL
+            query_params = parse_qs(urlparse(request.path).query)
+
+            keyword = ''
+            if 'keyword' in query_params and query_params['keyword']:
+                keyword = query_params['keyword'][0]
+            cities = []
+            if 'cities' in query_params and query_params['cities']:
+                cities = query_params['cities'][0]
+                cities = cities.split(",")
+
+            start_time = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            end_time = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
+            if 'start_time' in query_params and query_params['start_time']:
+                start_time = parser.parse(query_params['start_time'][0])
+            if 'end_time' in query_params and query_params['end_time']:
+                end_time = parser.parse(query_params['end_time'][0])
+
+            page = 1
+            if 'page' in query_params and query_params['page']:
+                page = int(query_params['page'][0])
+            per_page = 100
+            if 'per_page' in query_params and query_params['per_page']:
+                per_page = int(query_params['per_page'][0])
+            
+            # Tạo điều kiện truy vấn
+            query = {
+                # "city": {"$in": cities},
+                "name": { "$regex": keyword, '$options': 'i' },
+                "created_at": {"$gte": start_time, "$lte": end_time}
+            }
+            # Nếu có danh sách thành phố thì thêm điều kiện lọc theo city
+            if cities:
+                query["city"] = {"$in": cities}
+
+            # Sử dụng pipeline của aggregation để tính giá trị trung bình của nhiệt độ
+            pipeline = [
+                {"$match": query},
+                {"$addFields": {
+                    "temperature_as_float": {"$toDouble": "$temperature"}  # Chuyển đổi từ str sang float
+                }},
+                {"$group": {
+                    "_id": None,
+                    "averageTemperature": {"$avg": "$temperature_as_float"}
+                }}
+            ]
+
+            result = list(weather_collection.aggregate(pipeline))
+
+            # for weather in weathers:
+            #     weather["_id"] = str(weather["_id"])
+
+            # Tính tổng số bản ghi thỏa mãn điều kiện
+            total_count = len(result)
+            total_pages = (total_count + per_page - 1) // per_page  # Tính tổng số trang
+
+            # Tạo phản hồi
+            response_data = {
+                'page': page,
+                'per_page': per_page,
+                'total_pages': total_pages,
+                'total_count': total_count,
+                'content': result
+            }
+
+            response = Response.ok(format_response_data(200, "Lấy danh sách user thành công", response_data))
+            return self.send_response(request, response)
+        except Exception as e:
+            print(e)
+            response = Response.bad_request(format_response_data(400, "Có lỗi xảy ra", None))
+            return self.send_response(request, response)
+    
+    @permission_required(permissions=['staff', 'admin'])
+    def get_avg_temperature_of_city(self, request):
+        try:
+            # Lấy các query parameters từ URL
+            query_params = parse_qs(urlparse(request.path).query)
+
+            keyword = ''
+            if 'keyword' in query_params and query_params['keyword']:
+                keyword = query_params['keyword'][0]
+            cities = []
+            if 'cities' in query_params and query_params['cities']:
+                cities = query_params['cities'][0]
+                cities = cities.split(",")
+
+            start_time = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            end_time = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
+            if 'start_time' in query_params and query_params['start_time']:
+                start_time = parser.parse(query_params['start_time'][0])
+            if 'end_time' in query_params and query_params['end_time']:
+                end_time = parser.parse(query_params['end_time'][0])
+
+            page = 1
+            if 'page' in query_params and query_params['page']:
+                page = int(query_params['page'][0])
+            per_page = 10
+            if 'per_page' in query_params and query_params['per_page']:
+                per_page = int(query_params['per_page'][0])
+            
+            # Tạo điều kiện truy vấn
+            query = {
+                # "city": {"$in": cities},
+                "name": { "$regex": keyword, '$options': 'i' },
+                "created_at": {"$gte": start_time, "$lte": end_time}
+            }
+            # Nếu có danh sách thành phố thì thêm điều kiện lọc theo city
+            if cities:
+                query["city"] = {"$in": cities}
+
+            # Sử dụng pipeline của aggregation để tính giá trị trung bình của nhiệt độ
+            pipeline = [
+                {"$match": query},
+                {"$addFields": {
+                    "temperature_as_float": {"$toDouble": "$temperature"}  # Chuyển đổi từ str sang float
+                }},
+                {"$group": {
+                    "_id": "$name",
+                    "averageTemperature": {"$avg": "$temperature_as_float"}
+                }}
+            ]
+
+            result = list(weather_collection.aggregate(pipeline))
+
+            # for weather in weathers:
+            #     weather["_id"] = str(weather["_id"])
+
+            # Tính tổng số bản ghi thỏa mãn điều kiện
+            total_count = len(result)
+            total_pages = (total_count + per_page - 1) // per_page  # Tính tổng số trang
+
+            # Tạo phản hồi
+            response_data = {
+                'page': page,
+                'per_page': per_page,
+                'total_pages': total_pages,
+                'total_count': total_count,
+                'content': result
             }
 
             response = Response.ok(format_response_data(200, "Lấy danh sách user thành công", response_data))
