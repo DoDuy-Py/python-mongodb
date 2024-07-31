@@ -5,7 +5,7 @@ import json
 import os
 
 from views_func.function import init_db
-from views_func.shared_func import init_schedule
+from views_func.shared_func import init_schedule, logger
 
 class RequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -116,12 +116,12 @@ def run(server_class=HTTPServer, port=8000):
     try:
         server_address = ('0.0.0.0', port)
         httpd = server_class(server_address, RequestHandler)
-        print(f'========= Starting httpd server on port {port} ==========')
-        threading.Thread(target=init_schedule).start()
+        logger.info(f'========= Starting httpd server on port {port} ==========')
         threading.Thread(target=init_db).start()
+        threading.Thread(target=init_schedule).start()
         httpd.serve_forever()
     except Exception as e:
-        print(e)
+        logger.error(e)
 
 if __name__ == "__main__":
     run()

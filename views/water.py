@@ -96,9 +96,13 @@ class WaterViewSet(Base):
             per_page = 10
             if 'per_page' in query_params and query_params['per_page']:
                 per_page = int(query_params['per_page'][0])
+
+            query = {}
+            if keyword:
+                query["name"] = { "$regex": keyword, '$options': 'i' }
             
             waters = list(water_collection.find(
-                { "name": { "$regex": keyword, '$options': 'i' } }
+                query
             ).skip(page).limit(per_page).sort("created_at", -1))
 
             for water in waters:

@@ -9,6 +9,7 @@ import re
 from datetime import datetime
 
 from core.settings import r, RATE_LIMIT, TIME_CACHED_RATE_LIMIT
+from views_func.shared_func import logger
 
 routes = {
     "GET": {
@@ -105,6 +106,7 @@ def route_request(path, method):
 
 # Limit call apis
 def rate_limit(user_id, method, path):
+    logger.info(f"================= {rate_limit.__name__} ==============")
     if "?" in path:
         path = path.split("?")[0]
     # Tìm route tương ứng với path động

@@ -91,10 +91,12 @@ class WeatherViewSet(Base):
             per_page = 10
             if 'per_page' in query_params and query_params['per_page']:
                 per_page = int(query_params['per_page'][0])
-            
-            weathers = list(weather_collection.find(
-                { "name": { "$regex": keyword, '$options': 'i' } }
-            ).skip(page).limit(per_page).sort("created_at", -1))
+
+            query = {}
+            if keyword:
+                query["name"] = { "$regex": keyword, '$options': 'i' }
+                        
+            weathers = list(weather_collection.find(query).skip(page).limit(per_page).sort("created_at", -1))
 
             for weather in weathers:
                 weather["_id"] = str(weather["_id"])
@@ -150,9 +152,11 @@ class WeatherViewSet(Base):
             # Tạo điều kiện truy vấn
             query = {
                 # "city": {"$in": cities},
-                "name": { "$regex": keyword, '$options': 'i' },
+                # "name": { "$regex": keyword, '$options': 'i' },
                 "created_at": {"$gte": start_time, "$lte": end_time}
             }
+            if keyword:
+                query["name"] = { "$regex": keyword, '$options': 'i' }
             # Nếu có danh sách thành phố thì thêm điều kiện lọc theo city
             if cities:
                 query["city"] = {"$in": cities}
@@ -225,9 +229,11 @@ class WeatherViewSet(Base):
             # Tạo điều kiện truy vấn
             query = {
                 # "city": {"$in": cities},
-                "name": { "$regex": keyword, '$options': 'i' },
+                # "name": { "$regex": keyword, '$options': 'i' },
                 "created_at": {"$gte": start_time, "$lte": end_time}
             }
+            if keyword:
+                query["name"] = { "$regex": keyword, '$options': 'i' }
             # Nếu có danh sách thành phố thì thêm điều kiện lọc theo city
             if cities:
                 query["city"] = {"$in": cities}

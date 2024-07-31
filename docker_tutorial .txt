@@ -47,6 +47,13 @@ containerd.io docker-buildx-plugin docker-compose-plugin
 4. Dừng các container đang chạy: "sudo docker stop $(sudo docker ps -q)"
 5. Log docker deamon: "sudo journalctl -u docker.service"
 
+6. List volume: "docker volume ls"
+7. Xem chi tiết: "docker volume inspect volume_name"
+8. Xoa 1 volume: "docker volume rm volume_name"
+9. Xoa tất cả volume không dùng: "docker volume prune"
+
+10. Connect vào container như linux: "sudo docker-compose exec name_container sh" --hoặc: "docker exec -it <container_id> /bin/bash"
+
 *** Ngoài lề:
 1. Xem tiến trình nào đang chạy port: "sudo lsof -i :port"
 2. Kill tiến trình: "sudo kill PID" - hoặc kill tất: "sudo kill $(sudo lsof -t -i :port)"

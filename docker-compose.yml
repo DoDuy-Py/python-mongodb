@@ -3,15 +3,24 @@ services:
     image: mongo:latest
     container_name: mongodb
     ports:
-      - "27017:27017" # ánh xạ port 27017 của container ra ngoài máy chủ
+      - "27018:27017" # ánh xạ port 27017 của container ra ngoài máy chủ (server/container). Bên ngoài truy cập vào db sẽ trỏ đến cổng 27018. Vào container sẽ tự động chuyển thành 27017
+    volumes:
+      - mongo-data:/data/db
   redis:
     image: redis:latest
     container_name: redis
     ports:
-      - "6378:6378" # ánh xạ port 6378 của container ra ngoài máy chủ
+      - "6378:6379" # ánh xạ port 6378 của container ra ngoài máy chủ
+    volumes:
+      - redis-data:/data
   backend:
     build: .
     container_name: backend
+    logging:
+      driver: json-file # default, can be omitted
+      options:
+        max-size: 10m
+        max-file: 50
     ports:
       - "8000:8000" # ánh xạ port 8000 của container ra ngoài máy chủ
     depends_on:
@@ -19,4 +28,10 @@ services:
       - redis
     environment:
       - MONGODB_URL=mongodb://mongodb:27017/
-      - REDIS_URL=redis://redis:6378/0
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - backend-logs:/var/log/backend
+volumes:
+  mongo-data:
+  redis-data:
+  backend-logs:

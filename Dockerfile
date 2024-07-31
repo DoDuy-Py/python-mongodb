@@ -19,8 +19,11 @@ RUN wget https://www.python.org/ftp/python/3.8.10/Python-3.8.10.tgz && \
 # Tạo thư mục làm việc
 WORKDIR /app
 
-# Sao chép mã nguồn vào container
-COPY . /app
+# Copy requirements file
+COPY requirements.txt requirements.txt
+
+# Copy the rest of the application code
+COPY . .
 
 # Tạo và kích hoạt venv, sau đó cài đặt các phụ thuộc Python
 # RUN python3.8 -m venv venv && \
