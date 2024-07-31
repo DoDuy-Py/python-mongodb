@@ -3,17 +3,17 @@ services:
     image: mongo:latest
     container_name: mongodb
     ports:
-      - "27017:27017"
+      - "27017:27017" # ánh xạ port 27017 của container ra ngoài máy chủ
   redis:
     image: redis:latest
     container_name: redis
     ports:
-      - "6378:6378"
+      - "6378:6378" # ánh xạ port 6378 của container ra ngoài máy chủ
   backend:
     build: .
     container_name: backend
     ports:
-      - "8000:8000"
+      - "8000:8000" # ánh xạ port 8000 của container ra ngoài máy chủ
     depends_on:
       - mongodb
       - redis

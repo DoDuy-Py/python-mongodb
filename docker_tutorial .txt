@@ -1,52 +1,69 @@
 --------------- DOCKER FOR LINUX ---------------
 ** Khái niệm: Xem lại sau
 
-* Install ( with APT )
+*** Install ( with APT )
 1. "sudo apt-get update"
 2. "sudo apt-get install -y ca-certificates curl gnupg"
 3. "sudo install -m 0755 -d /etc/apt/keyrings"
 4. "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
 5. "sudo chmod a+r /etc/apt/keyrings/docker.asc"
 6. "echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
-  7. "sudo apt-get update"
-  8. "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
-  8.1 có thể thay thế bằng phiên bản cụ thể cho phù hợp với phiên bản ubuntu:
-  -- Lấy ra dsach phiên bản phù hợp: "apt-cache madison docker-ce | awk '{ print $3 }'"
-  -- Cài: "VERSION_STRING=5:26.1.1-1~ubuntu.22.04~jammy"
-  -- Cài: "sudo apt-get install docker-ce=$VERSION_STRING docker-ce-cli=$VERSION_STRING"
-   containerd.io docker-buildx-plugin docker-compose-plugin
-  9. "docker --version"
-  10. Check: "sudo docker run hello-world"
-  
-  ------------------- END INSTALLED ------------------------
-  
-  
-  * DOCKER HUB
-  ** Khái niệm: Gần giống như git 
-  1. Tạo tk: https://hub.docker.com/
-  2. Tạo Repository
-  ** Pull về và push lại lên docker hub
-  1. "docker pull hello-word" (Nếu không có quyền sử dụng sudo)
-  2. "sudo docker images" - Xem tất cả images và lấy id
-  3. "docker tag <image_id> <username>/<repository_name>:<tag_name>"
-  4. "docker login"
-  5. "docker push <username>/<repository_name>:<tag_name>"
-  6. "docker pull <username>/<repository_name>:<tag_name>"
-  
-  --------------------- END DOCKER HUB -------------------
-  
-  *** DOCKER COMPOSE
-  * INSTALLED
-  1. "sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose"
-  2. "sudo chmod +x /usr/local/bin/docker-compose"
-  3. docker-compose --version
-  
-  * USING
-  1. Tạo Dockerfile và docker-compose.yml ( Cùng cấp với file main ) --- Xem ở file trên git để cấu hình
-  2. Build: "sudo docker-compose up --build"
-  3. Shutdown: "docker-compose down"
-  4. View Logs: "sudo docker-compose logs -f <name_container>"
+"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu \
+$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+7. "sudo apt-get update"
+8. "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
+8.1 có thể thay thế bằng phiên bản cụ thể cho phù hợp với phiên bản ubuntu:
+-- Lấy ra dsach phiên bản phù hợp: "apt-cache madison docker-ce | awk '{ print $3 }'"
+-- Cài: "VERSION_STRING=5:26.1.1-1~ubuntu.22.04~jammy"
+-- Cài: "sudo apt-get install docker-ce=$VERSION_STRING docker-ce-cli=$VERSION_STRING"
+containerd.io docker-buildx-plugin docker-compose-plugin
+9. "docker --version"
+10. Check: "sudo docker run hello-world"
+------------------- END INSTALLED ------------------------
+
+
+---------------------------- DOCKER HUB --------------------------
+*** Khái niệm: Gần giống như git 
+1. Tạo tk: https://hub.docker.com/
+2. Tạo Repository
+
+*** Pull về và push lại lên docker hub
+1. "docker pull hello-word" (Nếu không có quyền sử dụng sudo)
+2. "sudo docker images" - Xem tất cả images và lấy id
+3. "docker tag <image_id> <username>/<repository_name>:<tag_name>"
+4. "docker login"
+5. "docker push <username>/<repository_name>:<tag_name>"
+6. "docker pull <username>/<repository_name>:<tag_name>"
+-------------------------- END DOCKER HUB ------------------------
+
+
+--------------------------- DOCKER SYNTAX -----------------------
+*** SYNTAX:
+1. Xóa các container đã dừng: "sudo docker rm $(sudo docker ps -a -q)"
+2. Xem các container đang chạy: "sudo docker ps" - Xem đã dừng: "sudo docker ps -a"
+3. Kiểm tra các cổng đang sử dụng: "sudo lsof -i -P -n | grep LISTEN"
+4. Dừng các container đang chạy: "sudo docker stop $(sudo docker ps -q)"
+5. Log docker deamon: "sudo journalctl -u docker.service"
+
+*** Ngoài lề:
+1. Xem tiến trình nào đang chạy port: "sudo lsof -i :port"
+2. Kill tiến trình: "sudo kill PID" - hoặc kill tất: "sudo kill $(sudo lsof -t -i :port)"
+--------------------------- END SYNTAX DOCKER -------------------------------------------
+
+
+------------------------------- DOCKER COMPOSE -----------------------------
+*** INSTALLED
+1. "sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose"
+2. "sudo chmod +x /usr/local/bin/docker-compose"
+3. docker-compose --version
+
+*** USING
+1. Tạo Dockerfile và docker-compose.yml ( Cùng cấp với file main ) --- Xem ở file trên git để cấu hình
+2. Build: "sudo docker-compose up --build" --- Build trong nền: "sudo docker-compose up -d --build"
+3. Shutdown: "docker-compose down -v"
+4. View Logs: "sudo docker-compose logs -f <name_container>"
+5. Dừng 1 container: "sudo docker-compose stop name_container"
+6. Restart container: "sudo docker-compose restart name_container"
+----------------------------- END DOCKER COMPOSE ----------------------------
